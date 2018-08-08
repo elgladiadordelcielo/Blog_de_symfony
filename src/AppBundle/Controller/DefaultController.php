@@ -18,7 +18,7 @@ class DefaultController extends Controller
      * @Route("/", name="homepage")
      * @Route("/noticias", name="noticias")
      */
-    public function tareasAction()
+    public function noticiasAction()
     {
         $repository = $this->getDoctrine()->getRepository('AppBundle:Noticias');
 
@@ -35,7 +35,7 @@ class DefaultController extends Controller
      /**
      * @Route("/noticia/{id}", name="noticia", requirements={"id"="\d+"})
      */
-    public function tareaAction($id)
+    public function noticiaAction($id)
     {
         $repository = $this->getDoctrine()->getRepository('AppBundle:Noticias');
 
@@ -75,6 +75,28 @@ class DefaultController extends Controller
 
         $response->headers->set('Contente-type','application/'.$_format);
         $response->setContent($contenido);
+        return $response;
+    }
+
+     /**
+      * @Route("/noticia.{_format}/{id}", name="noticia_json_xml", requirements={"_format": "json|xml", "id"="\d+"})
+     */
+    public function noticiaJsonXmlNoticiaAction($_format, $id)
+    {
+
+        $repository = $this->getDoctrine()->getRepository('AppBundle:Noticias');
+        $noticias = $repository->findOneById($id);
+
+        $encoders = array(new XmlEncoder(), new JsonEncoder());
+        $normalizers = array(new ObjectNormalizer());
+
+        $serializer = new Serializer($normalizers, $encoders);
+
+        $json_contenido = $serializer->serialize($noticias, $_format);
+        
+        $response = new Response();
+        $response->headers->set('Content-type', 'application/'.$_format.'');
+        $response->setContent($json_contenido);
         return $response;
     }
 
